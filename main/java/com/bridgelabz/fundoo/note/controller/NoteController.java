@@ -84,17 +84,20 @@ public class NoteController {
 	@PostMapping("/create-lable")
 	public Response createLable(@RequestParam String lablename,@RequestParam String email)
 	{
-		return lableService.craeteLabel(lablename, email);
+		lableService.craeteLabel(lablename, email);
+		return new Response(200, null, "lable created sucessfully...");
 	}
 	@PostMapping("/add-Note-to-lable")
-	public void addNote(@RequestParam String noteid,@RequestParam String lableid)
+	public Response addNote(@RequestParam String noteid,@RequestParam String lableid)
 	{
-		lableService.addingNote(noteid,lableid);
+		 lableService.addingNote(noteid,lableid);
+		return new Response(200, null, "note added sucessfully..");
 	}
 	@PutMapping("/delete-Note-from-lable")
-	public void deleteNoteFromList(@RequestParam String noteid,@RequestParam String lableid)
+	public Response deleteNotefromList(@RequestParam String noteid,@RequestParam String lableid)
 	{
-		lableService.deleteNote(noteid,lableid);
+		lableService.deleteNoteFromList(noteid,lableid);
+		return new Response(200, null, message)
 	}
 	@GetMapping("/sort-note-by-title")
 	public List<NoteModel> sortNote()
@@ -105,6 +108,11 @@ public class NoteController {
 	public List<NoteModel>sortByUpdatedDate()
 	{
 		return lableService.sortbyUpdatedDate();
+	}
+	@GetMapping("/getAllNotesOfLable")
+	public List<NoteModel>getAllNotes(@RequestParam String lableid)
+	{
+		return lableService.getAllNotes(lableid);
 	}
 
 }

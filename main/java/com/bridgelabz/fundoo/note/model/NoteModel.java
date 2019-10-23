@@ -25,7 +25,7 @@ public class NoteModel {
 	private boolean isPinned;
 	private boolean isArchived;
 	private boolean isTrashed;
-	@DBRef
+	@DBRef(lazy = true)
 	private List<LableModel> lableList=new ArrayList<LableModel>();
 
 }

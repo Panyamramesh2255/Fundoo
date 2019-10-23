@@ -16,7 +16,7 @@ public class LableModel {
 	private String id; 
 	private String email;
 	private String lableName;
-	@DBRef
+	@DBRef(lazy = true)
 	private List<NoteModel> noteList= new ArrayList<>();
 	
 }
