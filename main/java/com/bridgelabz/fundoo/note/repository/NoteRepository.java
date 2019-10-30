@@ -6,7 +6,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import com.bridgelabz.fundoo.note.model.NoteModel;
+
+/**
+ * @author RameshPanyam purpose: Creating a repository for notemodel class
+ */
 @Repository
+
 public interface NoteRepository extends MongoRepository<NoteModel, String> {
 	public List<NoteModel> findByEmail(String email);
+
 }

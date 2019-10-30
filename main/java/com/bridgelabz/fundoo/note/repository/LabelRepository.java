@@ -7,8 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.bridgelabz.fundoo.note.model.LableModel;
 import com.bridgelabz.fundoo.note.model.NoteModel;
-@Repository
-public interface LabelRepository extends MongoRepository<LableModel, String> {
 
+/**
+ * @author RameshPanyam purpose: Creating a repository for labelmodel class
+ */
+@Repository
+
+public interface LabelRepository extends MongoRepository<LableModel, String> {
 
 }

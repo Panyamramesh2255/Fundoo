@@ -9,14 +9,19 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
+
+/**
+ * @author RameshPanyam purpose: Creating Model Class For Label
+ */
 @Data
 @Document("Lable")
+
 public class LableModel {
 	@Id
-	private String id; 
+	private String id;
 	private String email;
 	private String lableName;
 	@DBRef(lazy = true)
-	private List<NoteModel> noteList= new ArrayList<>();
-	
+	private List<NoteModel> noteList = new ArrayList<>();
+
 }

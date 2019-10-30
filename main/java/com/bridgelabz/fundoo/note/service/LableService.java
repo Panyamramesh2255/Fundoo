@@ -1,9 +1,10 @@
 package com.bridgelabz.fundoo.note.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoo.note.model.LableModel;
@@ -13,8 +14,11 @@ import com.bridgelabz.fundoo.note.repository.NoteRepository;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.util.Util;
 
+@PropertySource("classpath:status.properties")
 @Service
 public class LableService implements ILable {
+	@Autowired
+	Environment environment;
 	@Autowired
 	LabelRepository lableRepository;
 	@Autowired
@@ -23,22 +27,29 @@ public class LableService implements ILable {
 	Util util;
 
 	/**
-	 *
+	 * Creating a label
 	 */
 	@Override
-	public Response craeteLabel(String lableName, String email) {
-		LableModel lableModel = new LableModel();
-		lableModel.setEmail(email);
-		lableModel.setLableName(lableName);
-		lableRepository.save(lableModel);
-		return new Response(200, null, "lable created...");
+	public Response craeteLabel(String lableName, String email, String token) {
+		try {
+			LableModel lableModel = new LableModel();
+			lableModel.setEmail(email);
+			lableModel.setLableName(lableName);
+			lableRepository.save(lableModel);
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		} catch (Exception e) {
+			return new Response(200, null, environment.getProperty("failurestatus"));
+		}
 	}
 
+	/**
+	 * purpose:Getting AllNotes of a particular label
+	 */
 	@Override
-	public List<NoteModel> getAllNotes( String lableId) {
-		//String email = util.decode(token);
-		LableModel lablemodel=lableRepository.findById(lableId).get();
-		List<NoteModel> notelist =  lablemodel.getNoteList(); /*noteRepository.findByEmail(email);*/
+	public List<NoteModel> getAllNotes(String lableId, String token) {
+		// String email = util.decode(token);
+		LableModel lablemodel = lableRepository.findById(lableId).get();
+		List<NoteModel> notelist = lablemodel.getNoteList(); /* noteRepository.findByEmail(email); */
 		return notelist;
 
 	}
@@ -49,29 +60,47 @@ public class LableService implements ILable {
 		return null;
 	}
 
+	/**
+	 * Adding note to the label
+	 */
 	@Override
-	public Response addingNote(String noteid, String lableid) {
+	public Response addingNote(String noteid, String lableid, String token) {
 		LableModel lableModel = lableRepository.findById(lableid).get();
-		// NoteModel noteModel=new NoteModel();
 		System.out.println(lableModel);
 		NoteModel notemodel = noteRepository.findById(noteid).get();
-		// notemodel.setLableList();
 		System.out.println(notemodel);
-		lableModel.getNoteList().add(notemodel);
-		lableRepository.save(lableModel);
-		notemodel.getLableList().add(lableModel);
-		noteRepository.save(notemodel);
-		return new Response(200, null, "Note added sucessfully..");
+		String userEmail = notemodel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (verifyingEmail.contentEquals(userEmail) == true) {
+			lableModel.getNoteList().add(notemodel);
+			lableRepository.save(lableModel);
+			notemodel.getLableList().add(lableModel);
+			noteRepository.save(notemodel);
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
 
+	/**
+	 * Deleting note from list
+	 */
 	@Override
-	public void deleteNoteFromList(String lableid, String noteid) {
+	public Response deleteNoteFromList(String lableid, String noteid, String token) {
 		LableModel lableModel = lableRepository.findById(lableid).get();
 		NoteModel notemodel = noteRepository.findById(noteid).get();
-		lableModel.getNoteList().remove(notemodel);
-		
+		String userEmail = notemodel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (verifyingEmail.contentEquals(userEmail) == true) {
+			lableModel.getNoteList().remove(notemodel);
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+
 	}
 
+	/**
+	 * Sorting list of notes by ti//= modelMapper.map(noteDto, NoteModel.class);tle
+	 */
 	@Override
 	public List<NoteModel> sortnoteByTitle() {
 		List<NoteModel> notemodelList = noteRepository.findAll();
@@ -81,12 +110,20 @@ public class LableService implements ILable {
 
 	}
 
+	/**
+	 * Sorting list of notes by Updated Date
+	 */
 	@Override
 	public List<NoteModel> sortbyUpdatedDate() {
 		List<NoteModel> notemodelList = noteRepository.findAll();
 		// System.out.println(notemodelList);
 		notemodelList.sort((NoteModel n1, NoteModel n2) -> n1.getEditedAt().compareTo(n2.getEditedAt()));
 		return notemodelList;
+	}
+
+	public Response verifying() {
+
+		return null;
 	}
 
 }

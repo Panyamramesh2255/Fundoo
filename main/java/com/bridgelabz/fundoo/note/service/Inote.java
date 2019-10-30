@@ -4,17 +4,30 @@ import java.util.List;
 
 import com.bridgelabz.fundoo.note.dto.NoteDto;
 import com.bridgelabz.fundoo.note.model.NoteModel;
+import com.bridgelabz.fundoo.response.Response;
 
 public interface Inote {
-	public String createNote(NoteDto noteDto);
-	public String updateNote(String id,String title,String description);
-	public String deleteNote(String id);
-	public List< NoteModel> getAllNotes();
-	public String pin(String id);
-	public String unPin(String id);
-	public String archive(String id);
-	public String unArchive(String id);
-	public String trash(String id);
-	public String reStore(String id);
+	public Response createNote(NoteDto noteDto, String token);
+
+	public Response updateNote(String id, String title, String description, String token);
+
+	public Response deleteNote(String id, String token);
+
+	public List<NoteModel> getAllNotes();
+
+	public Response pin(String id, String token);
+
+	public Response unPin(String id, String token);
+
+	public Response archive(String id, String token);
+
+	public Response unArchive(String id, String token);
+
+	public Response trash(String id, String token);
+
+	public Response reStore(String id, String token);
+
+	// public Response verifying(String token);
+	public Response addTOCollaborator(String id, String email);
 
 }

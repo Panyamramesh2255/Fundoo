@@ -10,6 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
+/**
+ * @author RameshPanyam purpose Creating Model class for note
+ */
 @Data
 @Document("Note")
 
@@ -22,10 +25,13 @@ public class NoteModel {
 	private String email;
 	private LocalDate createdAt;
 	private LocalDate editedAt;
+	private boolean active;
 	private boolean isPinned;
+	private boolean isActive;
 	private boolean isArchived;
 	private boolean isTrashed;
+	private List<String> collaborator = new ArrayList<>();
 	@DBRef(lazy = true)
-	private List<LableModel> lableList=new ArrayList<LableModel>();
+	private List<LableModel> lableList = new ArrayList<LableModel>();
 
 }

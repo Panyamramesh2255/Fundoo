@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.security.auth.login.LoginException;
 
 import org.modelmapper.ModelMapper;
 
@@ -27,19 +28,22 @@ import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
 import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.repository.IRegistrationRepository;
+import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.util.Util;
 
 @Service
 @PropertySource("classpath:message.properties")
 public class RegistrationService {
 	@Autowired
-	IRegistrationRepository registrationrepository;
+	private IRegistrationRepository registrationrepository;
 	@Autowired
-	ModelMapper modelMapper;
+	private ModelMapper modelMapper;
 	@Autowired
-	BCryptPasswordEncoder bcryprtpasswordEncoder;
+	private BCryptPasswordEncoder bcryprtpasswordEncoder;
 	@Autowired
-	Util util;
+	private Util util;
+	@Autowired
+	private Environment environment;
 //	@Autowired 
 //	Environment environment; 
 
@@ -50,7 +54,13 @@ public class RegistrationService {
 
 	String TOKEN_SECRET = "forgotpassword";
 
-	public String add(RegistrationDto registrationDto) {
+	/**
+	 * purpose: Registration
+	 * 
+	 * @param registrationDto
+	 * @return
+	 */
+	public Response add(RegistrationDto registrationDto) {
 
 		RegistrationModel registrationModel = modelMapper.map(registrationDto, RegistrationModel.class);
 		registrationModel.setPassWord(bcryprtpasswordEncoder.encode(registrationDto.getPassWord()));
@@ -60,10 +70,15 @@ public class RegistrationService {
 
 		registrationrepository.save(registrationModel);
 		// return environment.getProperty("failureStatus");
-		return "registration sucessfull";
+		return new Response(200, null, environment.getProperty("successstatus"));
 
 	}
 
+	/**
+	 * purpose: Deleting user
+	 * 
+	 * @param usernmae
+	 */
 	public void delete(String usernmae) {
 		registrationrepository.deleteByUserName(usernmae);
 
@@ -75,6 +90,12 @@ public class RegistrationService {
 		// registrationrepository.save(model);
 	}
 
+	/**
+	 * purpose: Getting Name..from user details
+	 * 
+	 * @param email
+	 * @return
+	 */
 	public RegistrationModel getName(String email) {
 		RegistrationModel registrationModel = registrationrepository.findByEmail(email);
 		String name = registrationModel.getUserName();
@@ -83,12 +104,25 @@ public class RegistrationService {
 
 	}
 
+	/**
+	 * purpose: Getting number from user details
+	 * 
+	 * @param username
+	 * @return
+	 */
 	public String getNumber(String username) {
 		RegistrationModel registrationModel = registrationrepository.findByUserName(username);
 		String number = registrationModel.getMobileNumber();
 		return number;
 	}
 
+	/**
+	 * purpose: Updating username
+	 * 
+	 * @param email
+	 * @param username
+	 * @return
+	 */
 	public RegistrationModel getData(String email, String username) {
 		RegistrationModel registrationModel = registrationrepository.findByEmail(email);
 		registrationModel.setUserName(username);
@@ -97,16 +131,28 @@ public class RegistrationService {
 		return registrationModel;
 	}
 
-	public boolean verify(LoginDto loginDto) {
+	/**
+	 * purpose: Login method
+	 * 
+	 * @param loginDto
+	 * @return
+	 * @throws LoginException
+	 */
+	public boolean verify(LoginDto loginDto) throws LoginException {
 		String email = loginDto.getEmail();
 		String password = loginDto.getPassword();
 		RegistrationModel registrationModel = registrationrepository.findByUserName(email);
+		if (registrationModel == null)
+			throw new LoginException("user not found...!");
 		if (registrationModel.getPassWord().equals(password))
 			return true;
 		else
 			return false;
 	}
 
+	/**
+	 * purpose: Sending Email
+	 */
 	@Autowired(required = true)
 	private JavaMailSender javaMailSender;
 
@@ -121,6 +167,13 @@ public class RegistrationService {
 
 	}
 
+	/**
+	 * purpose: Resetting Password
+	 * 
+	 * @param decodedstring
+	 * @param password
+	 * @return
+	 */
 	public boolean resetPassword(String decodedstring, String password) {
 		RegistrationModel registrationModel = registrationrepository.findByEmail(decodedstring);
 		System.out.println("found use by email :" + registrationModel);
@@ -129,6 +182,12 @@ public class RegistrationService {
 		return true;
 	}
 
+	/**
+	 * purpose: Verifying
+	 * 
+	 * @param token
+	 * @return
+	 */
 	public String verifying(String token) {
 		String email = util.decode(token);
 		System.out.println("decoded token is : " + email);

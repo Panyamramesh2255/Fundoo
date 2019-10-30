@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,123 +18,215 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.bridgelabz.fundoo.note.dto.NoteDto;
 import com.bridgelabz.fundoo.note.model.NoteModel;
 import com.bridgelabz.fundoo.note.repository.NoteRepository;
+import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.util.Util;
 
 @Service
-
+@PropertySource("classpath:status.properties")
 public class NoteService implements Inote {
 	@Autowired
-	NoteRepository noteRepository;
+	private Environment environment;
 	@Autowired
-	ModelMapper modelMapper;
-//	@Autowired
-//	NoteDto noteDto;
-//	@Autowired
-//	NoteModel noteModel;
+	private NoteRepository noteRepository;
+	@Autowired
+	private ModelMapper modelMapper;
+	@Autowired
+	private Util util;
+	@Autowired
+	NoteModel noteModel;
 
+	/**
+	 * purpose: creating Note
+	 */
 	@Override
-	public String createNote(NoteDto noteDto) {
-		System.out.println("we got note dto to service " + noteDto.getTitle() + "" + noteDto.getDescription()+"note email"+noteDto.getEmail());
-		NoteModel noteModel = modelMapper.map(noteDto, NoteModel.class);
-		noteModel.setCreatedAt(LocalDate.now());
-		noteModel.setEditedAt(LocalDate.now());
-		noteRepository.save(noteModel);
-		// System.out.println(noteModel.);
-		return "Note Added sucessfully";
+	public Response createNote(NoteDto noteDto, String token) {
+		String userEmail = noteDto.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (verifyingEmail.contentEquals(userEmail) == true) {
+			NoteModel noteModel = modelMapper.map(noteDto, NoteModel.class);
+			noteModel.setCreatedAt(LocalDate.now());
+			noteModel.setEditedAt(LocalDate.now());
+			noteModel.setActive(true);
+			noteRepository.save(noteModel);
+
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
 
+	/**
+	 * purpose: Updating Note
+	 */
 	@Override
-	public String updateNote(String id, String title, String description) {
+	public Response updateNote(String id, String title, String description, String token) {
 		NoteModel noteModel = noteRepository.findById(id).get();
-		if (!title.isEmpty())
-			noteModel.setTitle(title);
-		if (!description.isEmpty())
-			noteModel.setDescription(description);
-		noteRepository.save(noteModel);
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			if (!title.isEmpty())
+				noteModel.setTitle(title);
+			if (!description.isEmpty())
+				noteModel.setDescription(description);
+			noteRepository.save(noteModel);
 
-		return "updated sucessfully...";
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
 
+	/**
+	 * purpose: Updating Note
+	 */
 	@Override
-	public String deleteNote(String id) {
-		noteRepository.deleteById(id);
-		return "deleted";
+	public Response deleteNote(String id, String token) {
+		NoteModel note = noteRepository.findById(id).get();
+		String userEmail = note.getEmail();
+		String verifyingEMail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEMail) == true) {
+			noteRepository.deleteById(id);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
 
+	/**
+	 * purpose: Getting All Notes
+	 */
 	@Override
 	public List<NoteModel> getAllNotes() {
 		List<NoteModel> list = noteRepository.findAll();
 		return list;
 	}
 
+	/**
+	 * purpose:Pin Note
+	 */
 	@Override
-	public String pin(String id) {
-		NoteModel noteModel=noteRepository.findById(id).get();
-		noteModel.setPinned(true);
-		noteRepository.save(noteModel);
-		return "pinned..";
-	}
-
-	@Override
-	public String unPin(String id) {
-		NoteModel noteModel=noteRepository.findById(id).get();
-		boolean b=noteModel.isPinned();
-		if(b==false)
-			return "already unpinned...";
-		else
-			noteModel.setPinned(false);
-		noteRepository.save(noteModel);
-		return "unpinned...";
-	}
-
-	@Override
-	public String archive(String id) {
-		NoteModel noteModel=noteRepository.findById(id).get();
-		boolean b=noteModel.isArchived();
-		if(b==true)
-		return "note is already Archived...";
-		else
-			noteModel.setArchived(true);
-		noteRepository.save(noteModel);
-		return "Archieved..";
-	}
-
-	@Override
-	public String unArchive(String id) {
-		NoteModel noteModel=noteRepository.findById(id).get();
-		boolean b=noteModel.isArchived();
-		if(b==false)
-		return "note is already UnArchived...";
-		else
-			noteModel.setArchived(false);
-		noteRepository.save(noteModel);
-		return "UnArchieved..";
-		
-	}
-
-	@Override
-	public String trash(String id) {
-		NoteModel noteModel=noteRepository.findById(id).get();
-		boolean response=noteModel.isTrashed();
-		if(response==true)
-			return "Note is already in Trash..";
-	
-			noteModel.setTrashed(true);
-		noteRepository.save(noteModel);
-		return " NOte Trashed...";
-	}
-
-	@Override
-	public String reStore(String id) {
-		
-		NoteModel noteModel=noteRepository.findById(id).get();
-		boolean response=noteModel.isTrashed();
-		if(response==true)
-		{
-			noteModel.setTrashed(false);
-		noteRepository.save(noteModel);
-		return "Restored...";
+	public Response pin(String id, String token) {
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			noteModel.setPinned(true);
+			noteRepository.save(noteModel);
+			return new Response(200, null, environment.getProperty("successstatus"));
 		}
-		return "already Restored...";
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	/**
+	 * purpose: Unpin Note
+	 */
+	@Override
+	public Response unPin(String id, String token) {
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			boolean b = noteModel.isPinned();
+			if (b == false)
+				return new Response(200, null, environment.getProperty("failurestatus"));
+			else
+				noteModel.setPinned(false);
+			noteRepository.save(noteModel);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	/**
+	 * purpose: Archive Note
+	 */
+	@Override
+	public Response archive(String id, String token) {
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			boolean b = noteModel.isArchived();
+			if (b == true)
+				return new Response(200, null, environment.getProperty("failurestatus"));
+			else
+				noteModel.setArchived(true);
+			noteRepository.save(noteModel);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	/**
+	 * purpose: UnArchive Note
+	 */
+	@Override
+	public Response unArchive(String id, String token) {
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			boolean b = noteModel.isArchived();
+			if (b == false)
+				return new Response(200, null, environment.getProperty("failurestatus"));
+			else
+				noteModel.setArchived(false);
+			noteRepository.save(noteModel);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	/**
+	 * purpose:Trash Note
+	 */
+	@Override
+	public Response trash(String id, String token) {
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			boolean response = noteModel.isTrashed();
+			if (response == true)
+				return new Response(200, null, environment.getProperty("failurestatus"));
+
+			noteModel.setTrashed(true);
+			noteRepository.save(noteModel);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	/**
+	 * Restore Note
+	 */
+	@Override
+	public Response reStore(String id, String token) {
+
+		NoteModel noteModel = noteRepository.findById(id).get();
+		String userEmail = noteModel.getEmail();
+		String verifyingEmail = util.decode(token);
+		if (userEmail.contentEquals(verifyingEmail) == true) {
+			boolean response = noteModel.isTrashed();
+			if (response == true) {
+				noteModel.setTrashed(false);
+				noteRepository.save(noteModel);
+				return new Response(200, null, environment.getProperty("successstatus"));
+			}
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+
+	}
+
+	/**
+	 * purpose: Making collaboratorList
+	 */
+	public Response addTOCollaborator(String id, String email) {
+		NoteModel note = noteRepository.findById(id).get();
+		if (note != null) {
+			note.getCollaborator().add(email);
+			noteRepository.save(note);
+			return new Response(200, null, environment.getProperty("sucesssstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+
 	}
 
 }
