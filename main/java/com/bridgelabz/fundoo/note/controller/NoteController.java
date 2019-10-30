@@ -20,7 +20,6 @@ import com.bridgelabz.fundoo.note.dto.NoteDto;
 import com.bridgelabz.fundoo.note.model.NoteModel;
 import com.bridgelabz.fundoo.note.service.Inote;
 import com.bridgelabz.fundoo.note.service.LableService;
-import com.bridgelabz.fundoo.note.service.NoteService;
 import com.bridgelabz.fundoo.response.Response;
 
 @RestController

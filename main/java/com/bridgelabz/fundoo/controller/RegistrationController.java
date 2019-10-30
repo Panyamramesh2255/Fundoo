@@ -5,8 +5,6 @@ import javax.security.auth.login.LoginException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -131,6 +129,7 @@ public class RegistrationController {
 	@PutMapping("/update")
 	public Response updateEmail(@Valid @RequestParam String email, @Valid @RequestParam String username) {
 		RegistrationModel registrationModel = registrationservice.getData(email, username);
+		
 
 		return new Response(200, null, "updated sucessfully..");// <>(registrationModel, HttpStatus.OK);
 	}

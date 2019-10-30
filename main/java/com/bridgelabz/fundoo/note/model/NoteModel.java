@@ -25,7 +25,6 @@ public class NoteModel {
 	private String email;
 	private LocalDate createdAt;
 	private LocalDate editedAt;
-	private boolean active;
 	private boolean isPinned;
 	private boolean isActive;
 	private boolean isArchived;

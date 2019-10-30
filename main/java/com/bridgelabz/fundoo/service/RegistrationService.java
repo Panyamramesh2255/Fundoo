@@ -1,7 +1,5 @@
 package com.bridgelabz.fundoo.service;
 
-import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -12,18 +10,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.Verification;
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
 import com.bridgelabz.fundoo.model.RegistrationModel;
@@ -44,13 +35,7 @@ public class RegistrationService {
 	private Util util;
 	@Autowired
 	private Environment environment;
-//	@Autowired 
-//	Environment environment; 
 
-//	@Autowired
-//	RegistrationDto registrationDto;
-//	@Autowired
-//	RegistrationModel registrationModel;
 
 	String TOKEN_SECRET = "forgotpassword";
 

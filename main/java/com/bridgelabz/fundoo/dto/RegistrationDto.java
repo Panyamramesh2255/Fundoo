@@ -7,7 +7,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.mongodb.core.index.Indexed;
 
-import com.mongodb.lang.NonNull;
 
 import lombok.Data;
 @Data
