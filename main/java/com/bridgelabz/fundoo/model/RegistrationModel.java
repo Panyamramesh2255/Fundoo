@@ -15,5 +15,22 @@ public class RegistrationModel {
 	private boolean verify;
 	private String email;
 	private String mobileNumber;
+	private String profilepic;
+	public RegistrationModel(String id, String userName, String passWord, boolean verify, String email,
+			String mobileNumber, String profilepic) {
+		super();
+		this.id = id;
+		this.userName = userName;
+		this.passWord = passWord;
+		this.verify = verify;
+		this.email = email;
+		this.mobileNumber = mobileNumber;
+		this.profilepic = profilepic;
+	}
+	public RegistrationModel()
+	{
+		
+	}
+	
 
 }

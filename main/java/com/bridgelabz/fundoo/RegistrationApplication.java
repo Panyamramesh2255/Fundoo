@@ -7,8 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 
-//@ComponentScan(basePackages = {"com.bridgelabz.fundoonote","com.bridgelabz.fundoo"})
-//@EnableMongoRepositories(basePackages = {"com.bridgelabz.fundoo.repository,com.bridgelabz.fundoo.note.repository"})
 @ComponentScan("com.bridgelabz.fundoo")
 @SpringBootApplication(exclude= {SecurityAutoConfiguration.class})
 

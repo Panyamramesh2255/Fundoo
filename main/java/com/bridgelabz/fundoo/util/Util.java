@@ -41,7 +41,6 @@ public class Util {
 
 	public String decode(String token) {
 
-		String emailId;
 
 		Verification verification = null;
 		try {

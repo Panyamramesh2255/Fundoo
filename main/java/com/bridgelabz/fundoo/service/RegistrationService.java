@@ -1,5 +1,8 @@
 package com.bridgelabz.fundoo.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -8,23 +11,25 @@ import javax.security.auth.login.LoginException;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
+import com.bridgelabz.fundoo.exception.RegistrationException;
 import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.repository.IRegistrationRepository;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.util.Util;
 
+
 @Service
-@PropertySource("classpath:message.properties")
-public class RegistrationService {
+//@PropertySource("classpath:message.properties")
+public class RegistrationService implements IRegistrationService{
 	@Autowired
 	private IRegistrationRepository registrationrepository;
 	@Autowired
@@ -36,7 +41,6 @@ public class RegistrationService {
 	@Autowired
 	private Environment environment;
 
-
 	String TOKEN_SECRET = "forgotpassword";
 
 	/**
@@ -46,16 +50,19 @@ public class RegistrationService {
 	 * @return
 	 */
 	public Response add(RegistrationDto registrationDto) {
+		
 
 		RegistrationModel registrationModel = modelMapper.map(registrationDto, RegistrationModel.class);
+		if(registrationModel==null)throw new RegistrationException("inproper user details!");
 		registrationModel.setPassWord(bcryprtpasswordEncoder.encode(registrationDto.getPassWord()));
 		String userEmail = registrationDto.getEmail();
 		String token = util.encode(userEmail);
 		util.sendMail(userEmail, token);
 
 		registrationrepository.save(registrationModel);
-		// return environment.getProperty("failureStatus");
+
 		return new Response(200, null, environment.getProperty("successstatus"));
+		
 
 	}
 
@@ -64,15 +71,20 @@ public class RegistrationService {
 	 * 
 	 * @param usernmae
 	 */
-	public void delete(String usernmae) {
+	public Response delete(String usernmae) {
 		registrationrepository.deleteByUserName(usernmae);
+		return new Response(200, null, environment.getProperty("successstatus"));
 
 	}
-
+   /**
+    * purpose: updating user_name
+    * @param email
+    * @param username
+    */
 	public void update(String email, String username) {
-		// RegistrationModel model=registrationrepository.findByEmai(email);
-		// model.setUserName(username);
-		// registrationrepository.save(model);
+		 RegistrationModel model=registrationrepository.findByEmail(email);
+		 model.setUserName(username);
+		 registrationrepository.save(model);
 	}
 
 	/**
@@ -102,18 +114,17 @@ public class RegistrationService {
 	}
 
 	/**
-	 * purpose: Updating username
+	 * purpose: Updating user name
 	 * 
 	 * @param email
 	 * @param username
 	 * @return
 	 */
-	public RegistrationModel getData(String email, String username) {
+	public Response getData(String email, String username) {
 		RegistrationModel registrationModel = registrationrepository.findByEmail(email);
 		registrationModel.setUserName(username);
-		registrationModel = modelMapper.map(registrationModel, RegistrationModel.class);
 		registrationrepository.save(registrationModel);
-		return registrationModel;
+		return new Response(200, null, environment.getProperty("successstatus"));
 	}
 
 	/**
@@ -141,7 +152,7 @@ public class RegistrationService {
 	@Autowired(required = true)
 	private JavaMailSender javaMailSender;
 
-	public void sendEmail(String to, String subject, String body) throws MessagingException {
+	public Response sendEmail(String to, String subject, String body) throws MessagingException {
 		MimeMessage message = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper;
 		helper = new MimeMessageHelper(message, true);
@@ -149,6 +160,7 @@ public class RegistrationService {
 		helper.setTo(to);
 		helper.setText(body, true);
 		javaMailSender.send(message);
+		return new Response(200, null, environment.getProperty("mailsucess"));
 
 	}
 
@@ -173,19 +185,75 @@ public class RegistrationService {
 	 * @param token
 	 * @return
 	 */
-	public String verifying(String token) {
-		String email = util.decode(token);
+	public Response verifying(String email) {
 		System.out.println("decoded token is : " + email);
 		RegistrationModel model = registrationrepository.findByEmail(email);
 		System.out.println(model);
 		if (model.getEmail().contentEquals(email)) {
 			model.setVerify(true);
 			registrationrepository.save(model);
-			return "verified";
+			return new Response(200, null, environment.getProperty("sucessstatus"));
 		}
 
 		model.setVerify(false);
-		return "Not verified!";
+		return new Response(200, null, environment.getProperty("sucessstatus"));
 
+	}
+
+	public Response addProfilePic(MultipartFile file, String id, String verifiedEmail) throws IOException {
+		try {
+		byte[] b=file.getBytes(); 
+	  
+		String location= "/home/bridgeit/Documents/ProfilePic";
+		String filename=file.getName();
+		java.nio.file.Path path=Paths.get(location+filename+"."+"jpg");
+	    Files.write(path,b);
+		RegistrationModel user=registrationrepository.findById(id).get();
+		user.setProfilepic(location+filename);
+		registrationrepository.save(user);
+		
+		}
+		
+		 catch(Exception e) { throw new
+		 RegistrationException("finding exception in thereding byte file.."); }
+		 
+		
+		return new Response(200, null, environment.getProperty("successstatus"));
+	}
+
+	public Response deleteProfilePic(String id, String verifiedEmail) {
+		String userEmail=registrationrepository.findById(id).get().getEmail();
+		System.out.println("user email is..  "+userEmail);
+		if(userEmail.contentEquals(verifiedEmail))
+		{
+            RegistrationModel user=registrationrepository.findById(id).get();	
+            user.setProfilepic(null);
+            registrationrepository.save(user);
+			return new Response(200, null, environment.getProperty("successstatus"));
+		}
+		return new Response(400, null, environment.getProperty("failurestatus"));
+	}
+
+	public Response updateProfilePic(MultipartFile file, String id, String decode) {
+		
+		try {
+			byte[] b=file.getBytes(); 
+		  
+			String location= "/home/bridgeit/Documents/ProfilePic";
+			String filename=file.getName();
+			java.nio.file.Path path=Paths.get(location+filename+"."+"jpg");
+		    Files.write(path,b);
+			RegistrationModel user=registrationrepository.findById(id).get();
+			user.setProfilepic(location+filename);
+			registrationrepository.save(user);
+			
+			}
+			
+			 catch(Exception e) { throw new
+			 RegistrationException("finding exception in thereding byte file.."); }
+			 
+			
+			return new Response(200, null, environment.getProperty("successstatus"));
+		
 	}
 }

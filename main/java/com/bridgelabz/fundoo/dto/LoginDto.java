@@ -11,6 +11,12 @@ public class LoginDto {
 	private String email;
 	@Size(min=8,max=15,message ="invalid password" )
 	private String password;
+	public LoginDto(@Email String email, @Size(min = 8, max = 15, message = "invalid password") String password) {
+		super();
+		this.email = email;
+		this.password = password;
+	}
+	
 
 
 

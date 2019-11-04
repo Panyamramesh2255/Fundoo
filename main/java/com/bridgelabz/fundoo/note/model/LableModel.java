@@ -22,5 +22,18 @@ public class LableModel {
 	private String lableName;
 	@DBRef(lazy = true)
 	private List<NoteModel> noteList = new ArrayList<>();
+	public LableModel(String id, String email, String lableName, List<NoteModel> noteList) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.lableName = lableName;
+		this.noteList = noteList;
+	}
+	
 
+
+public LableModel()
+{
+	}
 }
+

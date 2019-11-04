@@ -1,9 +1,10 @@
 package com.bridgelabz.fundoo.note.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,18 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bridgelabz.fundoo.note.dto.NoteDto;
 import com.bridgelabz.fundoo.note.model.NoteModel;
 import com.bridgelabz.fundoo.note.service.Inote;
-import com.bridgelabz.fundoo.note.service.LableService;
+import com.bridgelabz.fundoo.note.util.ENUM;
 import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.util.Util;
 
 @RestController
 @RequestMapping("/note")
 public class NoteController {
+
 	@Autowired
-	Environment environment;
+	private Inote noteService;
 	@Autowired
-	Inote noteService;
-	@Autowired
-	LableService lableService;
+	Util util;
 
 	/**
 	 * purpose: Creating note
@@ -40,7 +41,8 @@ public class NoteController {
 	 */
 	@PostMapping("/note")
 	public ResponseEntity<Response> createNode(@RequestBody NoteDto noteDto, @RequestHeader String token) {
-		Response response = noteService.createNote(noteDto, token);
+
+		Response response = noteService.createNote(noteDto, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -62,7 +64,8 @@ public class NoteController {
 	 */
 	@DeleteMapping("/note")
 	public ResponseEntity<Response> deleteNote(@RequestParam String id, @RequestHeader String token) {
-		Response response = noteService.deleteNote(id, token);
+
+		Response response = noteService.deleteNote(id, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 
 	}
@@ -79,7 +82,7 @@ public class NoteController {
 	public ResponseEntity<Response> update(@RequestParam String id, @RequestParam String title,
 			@RequestParam String description, @RequestHeader String token) {
 
-		Response response = noteService.updateNote(id, title, description, token);
+		Response response = noteService.updateNote(id, title, description, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -93,19 +96,7 @@ public class NoteController {
 	@PutMapping("/pinnote")
 	public ResponseEntity<Response> pin(@RequestParam String id, @RequestHeader String token) {
 
-		Response response = noteService.pin(id, token);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}
-
-	/**
-	 * purpose: Making note unpin
-	 * 
-	 * @param id
-	 * @return Making un-pin note
-	 */
-	@PutMapping("/unpinnote")
-	public ResponseEntity<Response> unPin(@RequestParam String id, @RequestHeader String token) {
-		Response response = noteService.unPin(id, token);
+		Response response = noteService.pin(id, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -117,19 +108,21 @@ public class NoteController {
 	 */
 	@PutMapping("/archivenote")
 	public ResponseEntity<Response> archive(@RequestParam String id, @RequestHeader String token) {
-		Response response = noteService.archive(id, token);
+
+		Response response = noteService.archive(id, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	/**
-	 * purpose: Making note unarchive
+	 * purpose: Making note not archived
 	 * 
 	 * @param id
 	 * @return
 	 */
 	@PutMapping("/unarchivenote")
 	public ResponseEntity<Response> unArchive(@RequestParam String id, @RequestHeader String token) {
-		Response response = noteService.unArchive(id, token);
+
+		Response response = noteService.unArchive(id, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
@@ -153,85 +146,9 @@ public class NoteController {
 	 */
 	@PutMapping("/restorenote")
 	public ResponseEntity<Response> restore(@RequestParam String id, @RequestHeader String token) {
+
 		Response response = noteService.reStore(id, token);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
-	}
-
-	/**
-	 * purpose: Creating a label
-	 * 
-	 * @param lablename
-	 * @param email
-	 * @return
-	 */
-	@PostMapping("/lable")
-	public ResponseEntity<Response> createLable(@RequestParam String lablename, @RequestParam String email,
-			@RequestHeader String token) {
-		Response response = lableService.craeteLabel(lablename, email, token);
-
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-
-	}
-
-	/**
-	 * purpose: Adding a note to label
-	 *
-	 * @param noteid
-	 * @param lableid
-	 * @return
-	 */
-	@PostMapping("/addnotetolable")
-	public ResponseEntity<Response> addNote(@RequestParam String noteid, @RequestParam String lableid,
-			@RequestHeader String token) {
-		Response response = lableService.addingNote(noteid, lableid, token);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-
-	}
-
-	/**
-	 * purpose: Deleting note from list
-	 * 
-	 * @param noteid
-	 * @param lableid
-	 * @return
-	 */
-	@DeleteMapping("/notefromlable")
-	public ResponseEntity<Response> deleteNotefromList(@RequestParam String noteid, @RequestParam String lableid,
-			@RequestHeader String token) {
-		Response response = lableService.deleteNoteFromList(noteid, lableid, token);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
-
-	}
-
-	/**
-	 * purpose: Sorting notes by title
-	 * 
-	 * @return
-	 */
-	@GetMapping("/sortnotebytitle")
-	public List<NoteModel> sortNote() {
-		return lableService.sortnoteByTitle();
-	}
-
-	/**
-	 * purpose: Sorting notes by updated date
-	 * 
-	 * @return
-	 */
-	@GetMapping("/sortnotebyupdateddate")
-	public List<NoteModel> sortByUpdatedDate() {
-		return lableService.sortbyUpdatedDate();
-	}
-
-	/**
-	 * purpose: Getting all notes of label
-	 * 
-	 * @param lableid
-	 * @return
-	 */
-	@GetMapping("/getAllNotesOfLable")
-	public List<NoteModel> getAllNotes(@RequestParam String lableid, @RequestHeader String token) {
-		return lableService.getAllNotes(lableid, token);
 	}
 
 	/**
@@ -247,4 +164,48 @@ public class NoteController {
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
+	/**
+	 * purpose: adding reminder
+	 * 
+	 * @param reminder
+	 * @param id
+	 * @param token
+	 * @return
+	 */
+	@PostMapping("/reminder")
+	public ResponseEntity<Response> addReminder(
+			@RequestParam("reminder") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reminder,
+			@RequestParam("repeat") ENUM repeat, @RequestHeader String id, @RequestHeader String token) {
+		Response response = noteService.addReminder(reminder, repeat, id, util.decode(token));
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * purpose:updating reminder
+	 * 
+	 * @param reminder
+	 * @param id
+	 * @param token
+	 * @return
+	 */
+	@PutMapping("/reminder")
+	public ResponseEntity<Response> updateReminder(
+			@RequestParam("reminder") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime reminder,
+			@RequestParam("repeat") ENUM repeat, @RequestHeader String id, @RequestHeader String token) {
+		Response response = noteService.updateReminder(reminder, repeat, id, util.decode(token));
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
+
+	/**
+	 * purpose: deleting reminder
+	 * 
+	 * @param id
+	 * @param token
+	 * @return
+	 */
+	@DeleteMapping("/reminder")
+	public ResponseEntity<Response> deleteReminder(@RequestHeader String id, @RequestHeader String token) {
+		Response response = noteService.deleteReminder(id, util.decode(token));
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	}
 }

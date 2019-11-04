@@ -14,5 +14,6 @@ import com.bridgelabz.fundoo.note.model.NoteModel;
 
 public interface NoteRepository extends MongoRepository<NoteModel, String> {
 	public List<NoteModel> findByEmail(String email);
+	public NoteModel findByIdAndEmail(String id,String email);
 
 }

@@ -1,10 +1,12 @@
 package com.bridgelabz.fundoo.controller;
 
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.security.auth.login.LoginException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
@@ -23,7 +26,9 @@ import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.service.RegistrationService;
 import com.bridgelabz.fundoo.util.Util;
+import com.sun.mail.handlers.multipart_mixed;
 
+import java.io.IOException;
 import java.lang.String;
 
 @RequestMapping("/user")
@@ -34,9 +39,11 @@ public class RegistrationController {
 	RegistrationService registrationservice;
 	@Autowired
 	Util util;
+	@Autowired
+	Environment environment;
 
 	/**
-	 * purpose: Registartion
+	 * purpose: Registration
 	 * 
 	 * @param registrationDto
 	 * @return
@@ -54,8 +61,10 @@ public class RegistrationController {
 	 * @return
 	 */
 	@GetMapping("/verify")
-	public ResponseEntity<String> verify(@RequestParam String token) {
-		return new ResponseEntity<String>(registrationservice.verifying(token), HttpStatus.OK);
+	public ResponseEntity<Response> verify(@RequestParam String token) {
+		String email=util.decode(token);
+		Response response=registrationservice.verifying(email);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	/**
@@ -69,10 +78,10 @@ public class RegistrationController {
 	public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto) throws LoginException {
 		boolean status = registrationservice.verify(loginDto);
 		if (status)
-			return new ResponseEntity<String>("Log in sucess", HttpStatus.OK);
+			return new ResponseEntity<String>(environment.getProperty("Login success"), HttpStatus.OK);
 
-		return new ResponseEntity<String>("Log in Failure", HttpStatus.OK);
-		// return new ResponseEntity<String>("sucsess", HttpStatus.OK);
+		return new ResponseEntity<String>(environment.getProperty("Login failure"), HttpStatus.OK);
+		
 	}
 
 	/**
@@ -88,7 +97,7 @@ public class RegistrationController {
 	}
 
 	/**
-	 * purpose: Resetpassword
+	 * purpose: Reset password
 	 * 
 	 * @param token
 	 * @param password
@@ -96,14 +105,12 @@ public class RegistrationController {
 	 */
 	@PutMapping("/resetpassword")
 	public ResponseEntity<String> decode(@RequestHeader String token, @RequestHeader String password) {
-		System.out.println("token recieved : " + token);
 		String decodedstring = util.decode(token);
-		System.out.println("decodedtoken recieved : " + decodedstring);
-		boolean b = registrationservice.resetPassword(decodedstring, password);
-		if (b)
-			return new ResponseEntity<String>("password updated sucessfully", HttpStatus.OK);
+		boolean status = registrationservice.resetPassword(decodedstring, password);
+		if (status)
+			return new ResponseEntity<String>(environment.getProperty("successstatus"), HttpStatus.OK);
 		else
-			return new ResponseEntity<String>("password not updated sucessfully", HttpStatus.OK);
+			return new ResponseEntity<String>(environment.getProperty("failurestatus"), HttpStatus.OK);
 
 	}
 
@@ -114,9 +121,9 @@ public class RegistrationController {
 	 * @return
 	 */
 	@DeleteMapping("/delete")
-	public ResponseEntity<String> delete(@RequestParam String username) {
-		registrationservice.delete(username);
-		return new ResponseEntity<String>("deleted", HttpStatus.OK);
+	public ResponseEntity<Response> delete(@RequestParam String username) {
+		Response response=registrationservice.delete(username);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	/**
@@ -127,11 +134,11 @@ public class RegistrationController {
 	 * @return
 	 */
 	@PutMapping("/update")
-	public Response updateEmail(@Valid @RequestParam String email, @Valid @RequestParam String username) {
-		RegistrationModel registrationModel = registrationservice.getData(email, username);
+	public ResponseEntity<Response> updateEmail(@Valid @RequestParam String email, @Valid @RequestParam String username) {
+		Response response = registrationservice.getData(email, username);
 		
 
-		return new Response(200, null, "updated sucessfully..");// <>(registrationModel, HttpStatus.OK);
+		return new ResponseEntity<Response>(response,HttpStatus.OK);
 	}
 
 	/**
@@ -141,9 +148,27 @@ public class RegistrationController {
 	 * @throws MessagingException
 	 */
 	@GetMapping("/sendemail")
-	public ResponseEntity<String> sendemail() throws MessagingException {
-		registrationservice.sendEmail("panyamramesh2255@gmail.com", "Test mail", "Test");
-		return new ResponseEntity<String>("mail sended!!!!", HttpStatus.OK);
+	public ResponseEntity<Response> sendemail() throws MessagingException {
+		Response response=registrationservice.sendEmail("panyamramesh2255@gmail.com", "Test mail", "Test");
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
-
+	@PostMapping("/profilepic")
+	public ResponseEntity<Response>addprofilepic(@RequestParam MultipartFile file,@RequestParam String id,@RequestHeader String token) throws IOException
+	{
+		Response response=registrationservice.addProfilePic(file,id,util.decode(token));
+		return new ResponseEntity<Response>(response,HttpStatus.OK);
+	}
+	@DeleteMapping("/profilepic")
+	public ResponseEntity<Response>deleteprofilepic(@RequestParam String id,@RequestHeader String token)
+	{  
+		String email=util.decode(token);
+		Response response=registrationservice.deleteProfilePic(id,email);
+		return new ResponseEntity<Response>(response,HttpStatus.OK);
+	}
+	@PutMapping("/profilepic")
+	public ResponseEntity<Response>updateProfilepic(@RequestParam MultipartFile file,@RequestParam String id,@RequestHeader String token) throws IOException
+	{
+		Response response=registrationservice.updateProfilePic(file,id,util.decode(token));
+		return new ResponseEntity<Response>(response,HttpStatus.OK);
+	}
 }
