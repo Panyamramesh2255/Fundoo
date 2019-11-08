@@ -55,6 +55,9 @@ public class NoteModel {
 		this.collaborator = collaborator;
 		this.lableList = lableList;
 	}
+	public NoteModel() {
+		
+	}
 	
 	
 

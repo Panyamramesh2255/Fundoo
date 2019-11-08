@@ -50,7 +50,7 @@ import com.bridgelabz.fundoo.note.service.LableService;
 	* Test case for create label api
 	*/
 	@Test
-	public void createLabelTest() {
+	public void testcreateLabel() {
 	labelDTO.setLableName("Junit");
 	// Optional<Label> already = Optional.of(label);
 	when(modelMapper.map(labelDTO, LableModel.class)).thenReturn(label);

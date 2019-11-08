@@ -13,6 +13,8 @@ public class NoteDto {
 		this.description = description;
 		this.email = email;
 	}
-	
+	public NoteDto() {
+		
+	}
 
 }

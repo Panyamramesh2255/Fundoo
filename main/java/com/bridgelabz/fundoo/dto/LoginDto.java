@@ -1,6 +1,9 @@
 package com.bridgelabz.fundoo.dto;
 
 import javax.validation.constraints.Email;
+/**
+ * purpose:Dto Class for Login
+ */
 import javax.validation.constraints.Size;
 
 
@@ -15,6 +18,8 @@ public class LoginDto {
 		super();
 		this.email = email;
 		this.password = password;
+	}
+	public LoginDto() {
 	}
 	
 

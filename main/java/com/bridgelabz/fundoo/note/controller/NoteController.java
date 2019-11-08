@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,12 @@ import com.bridgelabz.fundoo.note.service.Inote;
 import com.bridgelabz.fundoo.note.util.ENUM;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.util.Util;
-
+/**
+ * purpose: Controller for Note
+ * @author PanyamRamesh
+ * 
+ *
+ */
 @RestController
 @RequestMapping("/note")
 public class NoteController {
@@ -134,7 +140,7 @@ public class NoteController {
 	 */
 	@PutMapping("trashnote")
 	public ResponseEntity<Response> trash(@RequestParam String id, @RequestHeader String token) {
-		Response response = noteService.trash(id, token);
+		Response response = noteService.trash(id, util.decode(token));
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 

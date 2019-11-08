@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoo.test;
 
+import static org.hamcrest.CoreMatchers.anything;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import java.util.List;
@@ -10,9 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
-
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,24 +25,24 @@ import com.bridgelabz.fundoo.note.dto.NoteDto;
 import com.bridgelabz.fundoo.note.model.NoteModel;
 import com.bridgelabz.fundoo.note.repository.NoteRepository;
 import com.bridgelabz.fundoo.note.service.NoteService;
+import com.bridgelabz.fundoo.response.Response;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class NoteServiceTest {
 
 	private MockMvc mockmvc;
-
+	@Spy
 	@InjectMocks
 	NoteService noteService;
+	@Mock
+	Environment environment;
 
 	@Mock
 	NoteController notecontroller;
 
 	@Mock
 	NoteRepository noteRepository;
-
-	@Mock
-	NoteDto noteDTO;
 
 	@Mock
 	ModelMapper modelMapper;
@@ -54,18 +57,28 @@ public class NoteServiceTest {
 
 	/**
 	 *
-	 * Test case foe create note api
+	 * Test case for create note api
 	 *
 	 * @throws Exception
 	 */
 	@Test
-	public void createNoteTest() throws Exception {
-		noteDTO.setDescription("7 wonders in world");
-		noteDTO.setTitle("naygara falls");
-		Optional<NoteModel> already = Optional.of(note);
-		when(modelMapper.map(noteDTO, NoteModel.class)).thenReturn(note);
-		when(noteRepository.save(note)).thenReturn(note);
-		assertEquals(noteDTO.getTitle(), already.get().getTitle());
+	public void testCreateNote() throws Exception {
+
+		NoteDto dto = new NoteDto();
+
+		dto.setTitle("title");
+		dto.setDescription("description");
+		dto.setEmail("user@gmail.com");
+		String email = "user@gmail.com";
+		String verifiedEmail = "user@gmail.com";
+		//when(dto.getEmail()).thenReturn(email);
+		assertEquals(true, email.contentEquals(verifiedEmail));
+//		if (dto.getEmail().contentEquals(verifiedEmail))
+		//when(anything().equals(verifiedEmail)).thenReturn(true);
+			when(modelMapper.map(dto, NoteModel.class)).thenReturn(note);
+		Response response = noteService.createNote(dto, email);
+		assertEquals(200, response.getStatusCode());
+
 	}
 
 	/**
@@ -99,7 +112,7 @@ public class NoteServiceTest {
 	@Test
 	public void getAllNoteTest() {
 		List<NoteModel> note1 = null;
-		String emailId = "pratikshatamadalge21@gmail.com";
+		String emailId = "panyamramesh2255@gmail.com";
 		Optional<NoteModel> already = Optional.of(note);
 		when(noteRepository.findByEmail(emailId)).thenReturn(note1);
 		assertEquals(note.getEmail(), already.get().getEmail());
@@ -118,6 +131,7 @@ public class NoteServiceTest {
 			note.setPinned(false);
 		else
 			note.setPinned(true);
+		assertEquals(true, note.isPinned());
 	}
 
 	/**
@@ -133,6 +147,8 @@ public class NoteServiceTest {
 			note.setTrashed(false);
 		else
 			note.setTrashed(false);
+		assertEquals(false, note.isTrashed());
+
 	}
 
 	/**
@@ -148,5 +164,6 @@ public class NoteServiceTest {
 			note.setArchived(false);
 		else
 			note.setArchived(false);
+		assertEquals(false, note.isArchived());
 	}
 }

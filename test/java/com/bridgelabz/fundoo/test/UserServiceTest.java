@@ -11,18 +11,22 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
 import com.bridgelabz.fundoo.exception.RegistrationException;
+import com.bridgelabz.fundoo.model.EmailDataModel;
 import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.repository.IRegistrationRepository;
+import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.service.RegistrationService;
 import com.bridgelabz.fundoo.util.Util;
 
@@ -36,27 +40,30 @@ public class UserServiceTest {
 	RegistrationService userServiceImpl;
 
 	@Mock
-IRegistrationRepository userRepository;
+	IRegistrationRepository userRepository;
 
 	@Mock
-	Util tokenUtil;
+	private Util tokenUtil;
+	@Mock
+	private Environment environment;
 
 	@Mock
-	RegistrationDto regDTO;
+	private BCryptPasswordEncoder bcrypt;
 
 	@Mock
-	JavaMailSender javaMailSender;
+	private JavaMailSender javaMailSender;
 
 	@Mock
-	ModelMapper modelmapper;
+	private ModelMapper modelmapper;
 
 	@Mock
-	PasswordEncoder passwordEncoder;
-
+	private PasswordEncoder passwordEncoder;
 	@Mock
-	LoginDto userDTO;
+	private RabbitTemplate rabbitTemplate;
 
-	RegistrationModel user = new RegistrationModel("1","ramesh", "123456", false, "panyamramesh2255@gmail.com","9878987867",null);
+	RegistrationModel user = new RegistrationModel("1", "ramesh", "123456", false, "panyamramesh2255@gmail.com",
+			"9878987867", null);
+
 	@Before
 	public void Setup() throws Exception {
 		mockmvc = MockMvcBuilders.standaloneSetup(userServiceImpl).build();
@@ -69,13 +76,14 @@ IRegistrationRepository userRepository;
 	 */
 	@Test
 	public void registerTest() throws Exception {
+		RegistrationDto regDTO = new RegistrationDto();
 		regDTO.setEmail("panyamramesh2255@gmail.com");
-		System.out.println("email setting after regdto "+regDTO.getEmail());
+		System.out.println("email setting amethodCallfter regdto " + regDTO.getEmail());
 		regDTO.setPassWord("123456");
 		regDTO.setMobileNumber("9878987867");
 		regDTO.setUserName("ramesh");
 		Optional<RegistrationModel> already = Optional.of(user);
-		when(userRepository.findByEmail(regDTO.getEmail())!=null)
+		when(userRepository.findByEmail(regDTO.getEmail()) != null)
 				.thenThrow(new RegistrationException("email is already registered"));
 		when(modelmapper.map(regDTO, RegistrationModel.class)).thenReturn(user);
 		when(userRepository.save(user)).thenReturn(user);
@@ -84,36 +92,55 @@ IRegistrationRepository userRepository;
 
 	/**
 	 * to test the login api
+	 * 
 	 */
 	@Test
-	public void loginTest() {
-
-		userDTO.setEmail("panyamramesh2255@gmail.com");
-		userDTO.setPassword("12345678");
-		Optional<RegistrationModel> already = Optional.of(user);
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
-		when(passwordEncoder.matches(userDTO.getPassword(), user.getPassWord())).thenReturn(true);
-		assertEquals(userDTO.getEmail(), already.get().getEmail());
+	public void testLogin() {
+		try {
+			String email = "panyamramesh2255141@gmail.com";
+			String password = "123456";
+			RegistrationModel user = new RegistrationModel();
+			when(userRepository.findByEmail(email)).thenReturn(user);
+			when(bcrypt.matches(password, user.getPassWord())).thenReturn(true);
+			Response response = userServiceImpl.verify(email, password);
+			assertEquals(200, response.getStatusCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * to test forgot password api
 	 */
 	@Test
-	public void forgotPassword() {
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
-		when(userRepository.save(user)).thenReturn(user);
-		assertEquals(userDTO.getEmail(), user.getEmail());
+	public void testforgotPassword() {
+
+		EmailDataModel emailDataModel = new EmailDataModel();
+		String mail = "letter2vijaykumarbhavanur@gmail.com";
+		String token = "verification code..";
+		emailDataModel.setEmailId(mail);
+		emailDataModel.setToken(token);
+		emailDataModel.setMailMessage("Verification mail");
+		rabbitTemplate.convertAndSend("key", emailDataModel);
+		Response response = userServiceImpl.forgotPassword(mail, token);
+		assertEquals(200, response.getStatusCode());
 	}
 
 	/**
 	 * to test reset password
 	 */
 	@Test
-	public void resetPassword() {
-		user.setPassWord("123456");
-		user.setPassWord(passwordEncoder.encode(user.getPassWord()));
+	public void testResetPassword() {
+		RegistrationModel user = new RegistrationModel();
+		String email = "panyamramesh2255@gmail.com";
+		String password = "123456789";
+		String key = "message";
+		String value = "success";
+		when(userRepository.findByEmail(email)).thenReturn(user);
 		when(userRepository.save(user)).thenReturn(user);
+		when(environment.getProperty(key)).thenReturn(value);
+        Response response = userServiceImpl.resetPassword(email, password);
+		assertEquals(200, response.getStatusCode());
 	}
 
 }

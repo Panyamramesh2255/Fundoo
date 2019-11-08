@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import com.bridgelabz.fundoo.response.Response;
 
 @Service
 @PropertySource("classpath:message.properties")
+@Cacheable
 public class NoteService implements Inote {
 	@Autowired
 	private Environment environment;
@@ -33,14 +35,14 @@ public class NoteService implements Inote {
 	@Override
 	public Response createNote(NoteDto noteDto, String verifiedEmail) {
 		String userEmail = noteDto.getEmail();
-		if (verifiedEmail.contentEquals(userEmail) == true) {
+		if (verifiedEmail.equals(userEmail)) {
 			NoteModel noteModel = modelMapper.map(noteDto, NoteModel.class);
 			noteModel.setCreatedAt(LocalDate.now());
 			noteModel.setEditedAt(LocalDate.now());
 			noteModel.setActive(true);
 			noteRepository.save(noteModel);
 
-			return new Response(200, null, environment.getProperty("sucesssstatus"));
+			return new Response(200, null, environment.getProperty("successstatus"));
 		}
 		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
@@ -70,6 +72,7 @@ public class NoteService implements Inote {
 	 * purpose: Updating Note
 	 */
 	@Override
+	@Cacheable(value = "user", key = "#id")
 	public Response deleteNote(String id, String verifiedEmail) {
 		NoteModel note = noteRepository.findById(id).get();
 		String userEmail = note.getEmail();
@@ -84,6 +87,7 @@ public class NoteService implements Inote {
 	 * purpose: Getting All Notes
 	 */
 	@Override
+	
 	public List<NoteModel> getAllNotes() {
 		List<NoteModel> list = noteRepository.findAll();
 		return list;
@@ -147,19 +151,22 @@ public class NoteService implements Inote {
 	@Override
 	public Response trash(String id, String verifiedEmail) {
 		NoteModel noteModel = noteRepository.findById(id).get();
+		System.out.println("note model.."+noteModel);
 		if (noteModel == null)
 			throw new NoteException("invalid note details! ");
 		String userEmail = noteModel.getEmail();
-
-		if (userEmail.contentEquals(verifiedEmail) == true) {
-			boolean response = noteModel.isTrashed();
-			if (response == true)
+		System.out.println("user email.."+userEmail);
+        System.out.println("verified email.."+verifiedEmail);
+		if (userEmail.contentEquals(verifiedEmail)) {
+                  System.out.println("user match found...");
+			if (noteModel.isTrashed())
 				return new Response(200, null, environment.getProperty("failurestatus"));
-
+         System.out.println("note is not yet trashed..");
 			noteModel.setTrashed(true);
 			noteRepository.save(noteModel);
 			return new Response(200, null, environment.getProperty("successstatus"));
 		}
+		System.out.println("user match not found...");
 		return new Response(400, null, environment.getProperty("failurestatus"));
 	}
 

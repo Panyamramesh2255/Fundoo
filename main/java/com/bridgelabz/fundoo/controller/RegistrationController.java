@@ -22,21 +22,26 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoo.dto.LoginDto;
 import com.bridgelabz.fundoo.dto.RegistrationDto;
+import com.bridgelabz.fundoo.model.EmailDataModel;
 import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.service.IRegistrationService;
 import com.bridgelabz.fundoo.service.RegistrationService;
 import com.bridgelabz.fundoo.util.Util;
 import com.sun.mail.handlers.multipart_mixed;
 
 import java.io.IOException;
 import java.lang.String;
-
+/**
+ * purpose:User Registration,Details
+ * @author PanyamRamesh
+ *
+ */
 @RequestMapping("/user")
 @RestController
-
 public class RegistrationController {
 	@Autowired
-	RegistrationService registrationservice;
+	IRegistrationService registrationservice;
 	@Autowired
 	Util util;
 	@Autowired
@@ -75,12 +80,12 @@ public class RegistrationController {
 	 * @throws LoginException
 	 */
 	@GetMapping("/login")
-	public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto) throws LoginException {
-		boolean status = registrationservice.verify(loginDto);
-		if (status)
-			return new ResponseEntity<String>(environment.getProperty("Login success"), HttpStatus.OK);
+	public ResponseEntity<Response> login(@Valid @RequestHeader String email, @RequestHeader String  password) throws LoginException {
+		Response response = registrationservice.verify(email,password);
+		
+			return new ResponseEntity<Response>(response, HttpStatus.OK);
 
-		return new ResponseEntity<String>(environment.getProperty("Login failure"), HttpStatus.OK);
+		
 		
 	}
 
@@ -91,9 +96,10 @@ public class RegistrationController {
 	 * @return
 	 */
 	@GetMapping("/forgotpassword")
-	public ResponseEntity<String> send(@RequestParam String email) {
-		util.encode(email);
-		return new ResponseEntity<String>("mail sended sucessfully !", HttpStatus.OK);
+	public ResponseEntity<Response> send(@RequestHeader String email) {
+		String token=util.encode(email);
+		Response response=registrationservice.forgotPassword(email,token);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
 	/**
@@ -103,14 +109,13 @@ public class RegistrationController {
 	 * @param password
 	 * @return
 	 */
-	@PutMapping("/resetpassword")
-	public ResponseEntity<String> decode(@RequestHeader String token, @RequestHeader String password) {
+	@PutMapping("/password")
+	public ResponseEntity<Response> decode(@RequestHeader String token, @RequestHeader String password) {
 		String decodedstring = util.decode(token);
-		boolean status = registrationservice.resetPassword(decodedstring, password);
-		if (status)
-			return new ResponseEntity<String>(environment.getProperty("successstatus"), HttpStatus.OK);
-		else
-			return new ResponseEntity<String>(environment.getProperty("failurestatus"), HttpStatus.OK);
+		Response response = registrationservice.resetPassword(decodedstring, password);
+		
+			return new ResponseEntity<Response>(response, HttpStatus.OK);
+		
 
 	}
 
@@ -120,7 +125,7 @@ public class RegistrationController {
 	 * @param username
 	 * @return
 	 */
-	@DeleteMapping("/delete")
+	@DeleteMapping("/user")
 	public ResponseEntity<Response> delete(@RequestParam String username) {
 		Response response=registrationservice.delete(username);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
@@ -133,7 +138,7 @@ public class RegistrationController {
 	 * @param username
 	 * @return
 	 */
-	@PutMapping("/update")
+	@PutMapping("/user")
 	public ResponseEntity<Response> updateEmail(@Valid @RequestParam String email, @Valid @RequestParam String username) {
 		Response response = registrationservice.getData(email, username);
 		

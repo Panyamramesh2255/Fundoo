@@ -16,7 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bridgelabz.fundoo.note.model.NoteModel;
 import com.bridgelabz.fundoo.note.service.LableService;
 import com.bridgelabz.fundoo.response.Response;
-
+/**
+ * purpose: Controller for Label
+ * @author PanyamRamesh
+ *
+ */
 @RestController
 @RequestMapping("/label")
 public class LabelController {

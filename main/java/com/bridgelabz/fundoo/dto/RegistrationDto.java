@@ -8,7 +8,11 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import lombok.Data;
-
+/**
+ * purpose:Dto Model For Registration 
+ * @author bridgeit
+ *
+ */
 @Data
 public class RegistrationDto {
 	@NotNull
