@@ -13,7 +13,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
 import com.bridgelabz.fundoo.model.EmailDataModel;
 import com.bridgelabz.fundoo.response.Response;
-@Cacheable
+//@Cacheable
 public class Util {
 	String TOKEN_SECRET = "forgotpassword";
 	@Autowired(required = true)
@@ -35,7 +35,7 @@ public class Util {
 		return token;
 
 	}
-	@Cacheable(value = "note", key = "#emailDataModel")
+	//@Cacheable(value = "note", key = "#emailDataModel")
 	public Response sendMail(EmailDataModel emailDataModel) {
 		try {
 		SimpleMailMessage mail = new SimpleMailMessage();
