@@ -57,10 +57,6 @@
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4</version>
@@ -94,15 +90,9 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
+		
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok-maven-plugin</artifactId>
@@ -129,17 +119,7 @@
 
 		</dependency>
 
-		<dependency>
-
-			<groupId>io.springfox</groupId>
-
-			<artifactId>springfox-swagger2</artifactId>
-
-			<version>2.6.1</version>
-
-			<scope>compile</scope>
-
-		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
