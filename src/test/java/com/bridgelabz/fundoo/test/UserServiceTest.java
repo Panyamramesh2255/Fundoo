@@ -95,21 +95,21 @@ public class UserServiceTest {
 	 * to test the login api
 	 * 
 	 */
-	@Test
-	public void testLogin() {
-		try {
-			LoginDto loginDto= new LoginDto();
-			String email = "panyamramesh2255141@gmail.com";
-			String password = "123456";
-			RegistrationModel user = new RegistrationModel();
-			when(userRepository.findByEmail(email)).thenReturn(user);
-			when(bcrypt.matches(password, user.getPassWord())).thenReturn(true);
-			Response response = userServiceImpl.verify(loginDto);
-			assertEquals(200, response.getStatusCode());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	@Test
+//	public void testLogin() {
+//		try {
+//			LoginDto loginDto= new LoginDto();
+//			String email = "panyamramesh2255141@gmail.com";
+//			String password = "123456";
+//			RegistrationModel user = new RegistrationModel();
+//			when(userRepository.findByEmail(email)).thenReturn(user);
+//			when(bcrypt.matches(password, user.getPassWord())).thenReturn(true);
+//			Response response = userServiceImpl.verify(loginDto);
+//			assertEquals(200, response.getStatusCode());
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * to test forgot password api
