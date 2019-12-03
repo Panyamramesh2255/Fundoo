@@ -31,53 +31,53 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * purpose: Configuring model mapper and redis 
  */
 public class ModelMapperConfig {
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
-	@Bean
-	public BCryptPasswordEncoder bcryprtpasswordEncoder()
-	{
-		return new BCryptPasswordEncoder();
-	}
-	@Bean
-	public Util util()
-	{
-		return new Util();
-	}
-	public LableModel lableModel()
-	{
-		return new LableModel();
-	}
-    @Bean
-    public Docket productApi() {
-
-        return new Docket(DocumentationType.SWAGGER_2)
-
-                .select() .apis(RequestHandlerSelectors.basePackage("com.bridgelabz.fundoo")) .build();
-
-    }
-    @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        RedisProperties properties = redisProperties();
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(properties.getHost());
-        configuration.setPort(properties.getPort());
-
-        return new JedisConnectionFactory(configuration);
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        final RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
-        return template;
-    }
-
-    @Bean
-    @Primary
-    public RedisProperties redisProperties() {
-        return new RedisProperties();
-    }
+//	@Bean
+//	public ModelMapper modelMapper() {
+//		return new ModelMapper();
+//	}
+//	@Bean
+//	public BCryptPasswordEncoder bcryprtpasswordEncoder()
+//	{
+//		return new BCryptPasswordEncoder();
+//	}
+//	@Bean
+//	public Util util()
+//	{
+//		return new Util();
+//	}
+//	public LableModel lableModel()
+//	{
+//		return new LableModel();
+//	}
+//    @Bean
+//    public Docket productApi() {
+//
+//        return new Docket(DocumentationType.SWAGGER_2)
+//
+//                .select() .apis(RequestHandlerSelectors.basePackage("com.bridgelabz.fundoo")) .build();
+//
+////    }
+//    @Bean
+//    public JedisConnectionFactory jedisConnectionFactory() {
+//        RedisProperties properties = redisProperties();
+//        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+//        configuration.setHostName(properties.getHost());
+//        configuration.setPort(properties.getPort());
+//
+//        return new JedisConnectionFactory(configuration);
+//    }
+//
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate() {
+//        final RedisTemplate<String, Object> template = new RedisTemplate<>();
+//        template.setConnectionFactory(jedisConnectionFactory());
+//        template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
+//        return template;
+//    }
+//
+//    @Bean
+//    @Primary
+//    public RedisProperties redisProperties() {
+//        return new RedisProperties();
+//    }
 }
