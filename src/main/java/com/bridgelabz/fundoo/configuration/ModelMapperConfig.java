@@ -25,6 +25,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 @EnableRedisRepositories
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: Configuring model mapper and redis 
+ */
 public class ModelMapperConfig {
 	@Bean
 	public ModelMapper modelMapper() {

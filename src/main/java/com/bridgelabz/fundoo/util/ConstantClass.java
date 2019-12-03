@@ -1,5 +1,10 @@
 package com.bridgelabz.fundoo.util;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: Constant Class for static variables
+ *
+ */
 public class ConstantClass {
 	public static final String SUCCESSFULL = "successfull";
 	public static final String INVALID = "invalid credentials ";

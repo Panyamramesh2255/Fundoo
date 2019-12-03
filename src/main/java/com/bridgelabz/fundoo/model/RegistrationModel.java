@@ -8,7 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.bridgelabz.fundoo.note.util.ENUM;
 
 import lombok.Data;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: RegistrationModel
+ */
 @Document(collection = "DETAILS")
 @Data
 public class RegistrationModel {

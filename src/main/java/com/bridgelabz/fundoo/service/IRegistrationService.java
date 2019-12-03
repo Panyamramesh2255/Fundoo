@@ -13,7 +13,11 @@ import com.bridgelabz.fundoo.dto.RegistrationDto;
 import com.bridgelabz.fundoo.model.RegistrationModel;
 import com.bridgelabz.fundoo.note.util.ENUM;
 import com.bridgelabz.fundoo.response.Response;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: Registration interface implementation
+ */
 public interface IRegistrationService {
 
 	public Response add(RegistrationDto registrationDto);

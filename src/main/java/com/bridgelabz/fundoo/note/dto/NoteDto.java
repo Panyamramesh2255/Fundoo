@@ -1,7 +1,11 @@
 package com.bridgelabz.fundoo.note.dto;
 
 import lombok.Data;
-
+/**
+ * 
+ * @author PanyamRamesh
+ *  purpose: NoteDto Class
+ */
 @Data
 public class NoteDto {
 	private String title;

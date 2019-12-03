@@ -15,6 +15,12 @@ import com.auth0.jwt.interfaces.Verification;
 import com.bridgelabz.fundoo.model.EmailDataModel;
 import com.bridgelabz.fundoo.response.Response;
 //@Cacheable
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: Util class for implementing commonly used code
+ *
+ */
 @PropertySource("classpath:message.properties")
 public class Util {
 	String TOKEN_SECRET = "forgotpassword";

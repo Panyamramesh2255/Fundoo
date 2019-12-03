@@ -11,7 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.bridgelabz.fundoo.util.Util;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: RabbitMq Configuration
+ *
+ */
 @Configuration
 public class RabbitMQConfiguration {
 

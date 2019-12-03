@@ -31,7 +31,11 @@ import com.bridgelabz.fundoo.repository.IRegistrationRepository;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.util.ConstantClass;
 import com.bridgelabz.fundoo.util.Util;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: implementing Registration Service class
+ */
 @Service
 @PropertySource("classpath:message1.properties")
 public class RegistrationService implements IRegistrationService {
@@ -237,7 +241,7 @@ public class RegistrationService implements IRegistrationService {
 
 		}
 
-		catch (Exception e) {
+		catch (Exception e)  {
 			throw new RegistrationException("finding exception in thereding byte file..");
 		}
 

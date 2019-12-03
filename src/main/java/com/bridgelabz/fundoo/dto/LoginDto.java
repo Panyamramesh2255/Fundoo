@@ -1,6 +1,7 @@
 package com.bridgelabz.fundoo.dto;
 
 import javax.validation.constraints.Email;
+
 /**
  * purpose:Dto Class for Login
  */

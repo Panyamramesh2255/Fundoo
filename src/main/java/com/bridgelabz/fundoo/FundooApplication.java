@@ -7,7 +7,12 @@ import org.springframework.context.annotation.ComponentScan;
 
 @ComponentScan("com.bridgelabz.fundoo")
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
-
+/**
+ * 
+ * @author PanyamRamesh
+ * 
+ *
+ */
 public class FundooApplication {
 
 	public static void main(String[] args) {

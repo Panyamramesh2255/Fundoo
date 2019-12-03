@@ -4,7 +4,12 @@ import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
+/**
+ * 
+ * @author PanyamRamesh
+ * purpose: Response Class for response structure
+ *
+ */
 @Data
 @AllArgsConstructor
 public class Response implements Serializable {
