@@ -26,7 +26,7 @@ import com.bridgelabz.fundoo.response.Response;
  */
 @Service
 @PropertySource("classpath:message1.properties")
-//@Cacheable
+
 public class NoteService implements Inote {
 	@Autowired
 	private Environment environment;
@@ -80,7 +80,7 @@ public class NoteService implements Inote {
 	 * purpose: Updating Note
 	 */
 	@Override
-	//@Cacheable(value = "user", key = "#id")
+	
 	public Response deleteNote(String id, String verifiedEmail) {
 		NoteModel note = noteRepository.findById(id).get();
 		String userEmail = note.getEmail();
